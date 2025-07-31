@@ -1,1 +1,158 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <!-- <link rel="icon" type="image/svg+xml" href="/vite.svg" /> -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" href="/static/style.css">
+    <title>AI File Analysis</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/dompurify/2.3.3/purify.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+  </head>
+  <body>
+    <div id="notification-container"></div> <!-- Notification container -->
+    <!-- Top Banner -->
+    <header class="banner">
+      <div class="container">
+        <div class="banner-content">
+          <h1 class="banner-title">AI File Analysis</h1>
+          <p class="banner-subtitle">Advanced file processing with artificial intelligence</p>
+        </div>
+        <div class="banner-icon">
+          <svg width="48" height="48" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M12 2L2 7L12 12L22 7L12 2Z" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/>
+            <path d="M2 17L12 22L22 17" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/>
+            <path d="M2 12L12 17L22 12" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </div>
+      </div>
+    </header>
 
+    <main class="main-content">
+      <div class="container main-grid">
+        <!-- Main Content Area -->
+        <div class="main-area">
+          <!-- Drag and Drop Section -->
+          <section class="upload-section" id="uploadSection">
+            <div class="drag-drop-area" id="dragDropArea">
+              <div class="drag-drop-content">
+                <div class="upload-icon">
+                  <svg width="64" height="64" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M21 15V19C21 19.5304 20.7893 20.0391 20.4142 20.4142C20.0391 20.7893 19.5304 21 19 21H5C4.46957 21 3.96086 20.7893 3.58579 20.4142C3.21071 20.0391 3 19.5304 3 19V15" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    <path d="M7 10L12 5L17 10" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    <path d="M12 5V15" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                  </svg>
+                </div>
+                <h3 class="upload-title">Drop your files here</h3>
+                <p class="upload-description">or click to browse files</p>
+                <div class="supported-formats">
+                  <span class="format-tag">PDF</span>
+                  <span class="format-tag">JPG</span>
+                  <span class="format-tag">PNG</span>
+                  <span class="format-tag">DOCX</span>
+                  <span class="format-tag">CSV</span>
+                  <span class="format-tag">XLSX</span>
+                  <span class="format-tag">TXT</span>
+                </div>
+              </div>
+              <input type="file" id="fileInput" class="file-input" accept=".pdf,.jpg,.jpeg,.png,.docx,.csv,.xlsx,.xls,.txt">
+            </div>
+          </section>
+
+          <!-- Demo Text Section -->
+          <section class="demo-section" id="demoSection" style="display: none;">
+            <div class="demo-container">
+              <h2 class="demo-title" id="demoTitle">Analysis Preview</h2>
+              <div class="highlight-box">
+                <div class="code-header">
+                  <div class="code-tabs">
+                  </div>
+                  <div class="code-actions">
+                    <button class="code-action">Copy</button>
+                  </div>
+                </div>
+                <div class="code-content">
+                  <pre class="demo-text" id="demoContent"><code></code></pre>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          <!-- Download Section -->
+          <section class="download-section" id="downloadSection" style="display: none;">
+            <div class="download-container">
+              <h2 class="download-title">Get Your Results</h2>
+              <p class="download-description" id="downloadDescription">Download the complete analysis report with detailed insights and recommendations.</p>
+              <div class="download-options">
+                <button class="download-btn" id="downloadPdfBtn">
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M21 15V19C21 19.5304 20.7893 20.0391 20.4142 20.4142C20.0391 20.7893 19.5304 21 19 21H5C4.46957 21 3.96086 20.7893 3.58579 20.4142C3.21071 20.0391 3 19.5304 3 19V15" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    <path d="M8 10L12 14L16 10" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    <path d="M12 14V2" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                  </svg>
+                  PDF Report
+                </button>
+                <button class="download-btn secondary" id="downloadTxtBtn">
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M21 15V19C21 19.5304 20.7893 20.0391 20.4142 20.4142C20.0391 20.7893 19.5304 21 19 21H5C4.46957 21 3.96086 20.7893 3.58579 20.4142C3.21071 20.0391 3 19.5304 3 19V15" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    <path d="M8 10L12 14L16 10" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    <path d="M12 14V2" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                  </svg>
+                  Text Report
+                </button>
+              </div>
+            </div>
+          </section>
+        </div>
+
+        <!-- Right Sidebar -->
+        <aside class="sidebar" id="sidebar">
+          <div id="authSection">
+            <h2 class="sidebar-title">Account</h2>
+            <div id="loginForm">
+              <h3 class="form-title">Login</h3>
+              <input type="text" id="loginUsername" placeholder="Username" class="input-field">
+              <input type="password" id="loginPassword" placeholder="Password" class="input-field">
+              <button id="loginBtn" class="btn primary">Login</button>
+              <p class="toggle-form">Don't have an account? <a href="#" id="showRegister">Sign Up</a></p>
+            </div>
+            <div id="registerForm" style="display: none;">
+              <h3 class="form-title">Register</h3>
+              <input type="text" id="registerUsername" placeholder="Username" class="input-field">
+              <input type="password" id="registerPassword" placeholder="Password" class="input-field">
+              <button id="registerBtn" class="btn primary">Register</button>
+              <p class="toggle-form">Already have an account? <a href="#" id="showLogin">Login</a></p>
+            </div>
+          </div>
+
+          <div id="profileSection" style="display: none;">
+            <h2 class="sidebar-title">Welcome, <span id="usernameDisplay"></span>!</h2>
+            <button id="logoutBtn" class="btn secondary">Logout</button>
+            
+            <!-- <h3 class="sidebar-subtitle" style="visibility: hidden;">File Actions</h3>
+            <button id="uploadAnalyzeBtn" class="btn primary full-width" style="visibility: hidden;">Upload & Analyze File</button> -->
+            
+            <h3 class="sidebar-subtitle">File History</h3>
+            <div id="historyLoader" class="loader-container" style="display: none;">
+                <!-- <div class="spinner"></div> -->
+                 <svg class="spinner" viewBox="0 0 50 50"><circle class="path" cx="25" cy="25" r="20" fill="none" stroke-width="5"></circle></svg>
+            </div>
+            <ul id="fileHistoryList" class="file-history-list">
+              <!-- File history items will be loaded here -->
+            </ul>
+          </div>
+        </aside>
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="container">
+        <p>&copy; 2025 Republic. All rights reserved.</p>
+      </div>
+    </footer>
+
+    <script type="module" src="/static/main.js"></script>
+  </body>
+</html>
